@@ -1,6 +1,27 @@
-# �� E-commerce Backend (Architecture MVC)
+# 🛒 E-commerce Backend (Architecture MVC)
 
 Backend Node.js avec Express et MySQL pour la gestion d'un site e-commerce. Architecture MVC avec migrations et seeders.
+
+## 🚀 Quick Setup for Collaborators
+
+**New to the project?** Check out the detailed setup guide: **[SETUP.md](./SETUP.md)**
+
+### Quick Start (for experienced developers):
+```bash
+# Clone and install
+git clone <your-repo-url>
+cd ecommercebackend
+npm install
+
+# Start MySQL and create database
+brew services start mysql  # macOS
+mysql -u root -e "CREATE DATABASE IF NOT EXISTS ecommerce;"
+
+# Start the server
+npm run dev
+```
+
+**For detailed setup instructions, troubleshooting, and platform-specific guides, see [SETUP.md](./SETUP.md)**
 
 ## 📁 Structure du projet
 

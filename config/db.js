@@ -24,7 +24,11 @@ const createTables = () => {
     CREATE TABLE IF NOT EXISTS categories (
       id INT AUTO_INCREMENT PRIMARY KEY,
       name VARCHAR(100) NOT NULL UNIQUE,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      description TEXT,
+      slug VARCHAR(150) UNIQUE,
+      is_active BOOLEAN DEFAULT TRUE,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     )
   `;
 
@@ -33,9 +37,17 @@ const createTables = () => {
     CREATE TABLE IF NOT EXISTS products (
       id INT AUTO_INCREMENT PRIMARY KEY,
       name VARCHAR(200) NOT NULL,
+      description TEXT,
       price DECIMAL(10,2) NOT NULL,
+      sale_price DECIMAL(10,2),
+      stock_quantity INT DEFAULT 0,
+      sku VARCHAR(100) UNIQUE,
       category_id INT,
+      image_url VARCHAR(500),
+      is_active BOOLEAN DEFAULT TRUE,
+      is_featured BOOLEAN DEFAULT FALSE,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
       FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
     )
   `;
