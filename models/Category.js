@@ -3,25 +3,13 @@ const db = require('../config/db');
 class Category {
   // Récupérer toutes les catégories
   static getAll(callback) {
-    const query = 'SELECT * FROM categories WHERE is_active = TRUE ORDER BY name';
-    db.query(query, (err, results) => {
-      if (err) {
-        callback(err, null);
-        return;
-      }
-      callback(null, results);
-    });
+    db.query('SELECT * FROM categories', callback);
   }
 
   // Récupérer une catégorie par ID
   static getById(id, callback) {
-    const query = 'SELECT * FROM categories WHERE id = ? AND is_active = TRUE';
-    db.query(query, [id], (err, results) => {
-      if (err) {
-        callback(err, null);
-        return;
-      }
-      callback(null, results[0]);
+    db.query('SELECT * FROM categories WHERE id = ?', [id], (err, results) => {
+      callback(err, results[0]);
     });
   }
 
@@ -38,54 +26,18 @@ class Category {
   }
 
   // Créer une nouvelle catégorie
-  static create(categoryData, callback) {
-    const query = 'INSERT INTO categories (name, description, slug, is_active) VALUES (?, ?, ?, ?)';
-    const slug = categoryData.slug || categoryData.name.toLowerCase().replace(/\s+/g, '-');
-    
-    db.query(query, [
-      categoryData.name,
-      categoryData.description || null,
-      slug,
-      categoryData.is_active !== undefined ? categoryData.is_active : true
-    ], (err, result) => {
-      if (err) {
-        callback(err, null);
-        return;
-      }
-      callback(null, { id: result.insertId, ...categoryData, slug });
-    });
+  static create(category, callback) {
+    db.query('INSERT INTO categories (id, name) VALUES (?, ?)', [category.id, category.name], callback);
   }
 
   // Mettre à jour une catégorie
-  static update(id, categoryData, callback) {
-    const query = 'UPDATE categories SET name = ?, description = ?, slug = ?, is_active = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?';
-    const slug = categoryData.slug || categoryData.name.toLowerCase().replace(/\s+/g, '-');
-    
-    db.query(query, [
-      categoryData.name,
-      categoryData.description || null,
-      slug,
-      categoryData.is_active !== undefined ? categoryData.is_active : true,
-      id
-    ], (err, result) => {
-      if (err) {
-        callback(err, null);
-        return;
-      }
-      callback(null, { id, ...categoryData, slug });
-    });
+  static update(id, category, callback) {
+    db.query('UPDATE categories SET name = ? WHERE id = ?', [category.name, id], callback);
   }
 
   // Supprimer une catégorie (soft delete)
   static delete(id, callback) {
-    const query = 'UPDATE categories SET is_active = FALSE, updated_at = CURRENT_TIMESTAMP WHERE id = ?';
-    db.query(query, [id], (err, result) => {
-      if (err) {
-        callback(err, null);
-        return;
-      }
-      callback(null, result);
-    });
+    db.query('DELETE FROM categories WHERE id = ?', [id], callback);
   }
 
   // Supprimer définitivement une catégorie

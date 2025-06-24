@@ -10,7 +10,7 @@ const categoryRoutes = require('./routes/category');
 const productRoutes = require('./routes/product');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8000;
 
 // Middleware pour parser le JSON
 app.use(express.json());
@@ -18,7 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Configuration CORS
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5000', 'http://localhost:5173'],
+  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5000', 'http://localhost:8080', 'http://localhost:5173'],
   credentials: true
 }));
 

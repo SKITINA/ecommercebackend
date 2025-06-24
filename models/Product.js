@@ -3,100 +3,19 @@ const db = require('../config/db');
 class Product {
   // Récupérer tous les produits avec leurs catégories
   static getAll(callback) {
-    const query = `
-      SELECT 
-        p.id, 
-        p.name, 
-        p.description,
-        p.price,
-        p.sale_price,
-        p.stock_quantity,
-        p.sku,
-        p.category_id,
-        p.image_url,
-        p.is_active,
-        p.is_featured,
-        p.created_at,
-        p.updated_at,
-        c.name as category_name,
-        c.slug as category_slug
-      FROM products p
-      LEFT JOIN categories c ON p.category_id = c.id
-      WHERE p.is_active = TRUE
-      ORDER BY p.name
-    `;
-    db.query(query, (err, results) => {
-      if (err) {
-        callback(err, null);
-        return;
-      }
-      callback(null, results);
-    });
+    db.query('SELECT * FROM products', callback);
   }
 
   // Récupérer un produit par ID
   static getById(id, callback) {
-    const query = `
-      SELECT 
-        p.id, 
-        p.name, 
-        p.description,
-        p.price,
-        p.sale_price,
-        p.stock_quantity,
-        p.sku,
-        p.category_id,
-        p.image_url,
-        p.is_active,
-        p.is_featured,
-        p.created_at,
-        p.updated_at,
-        c.name as category_name,
-        c.slug as category_slug
-      FROM products p
-      LEFT JOIN categories c ON p.category_id = c.id
-      WHERE p.id = ? AND p.is_active = TRUE
-    `;
-    db.query(query, [id], (err, results) => {
-      if (err) {
-        callback(err, null);
-        return;
-      }
-      callback(null, results[0]);
+    db.query('SELECT * FROM products WHERE id = ?', [id], (err, results) => {
+      callback(err, results[0]);
     });
   }
 
   // Récupérer les produits par catégorie
   static getByCategory(categoryId, callback) {
-    const query = `
-      SELECT 
-        p.id, 
-        p.name, 
-        p.description,
-        p.price,
-        p.sale_price,
-        p.stock_quantity,
-        p.sku,
-        p.category_id,
-        p.image_url,
-        p.is_active,
-        p.is_featured,
-        p.created_at,
-        p.updated_at,
-        c.name as category_name,
-        c.slug as category_slug
-      FROM products p
-      LEFT JOIN categories c ON p.category_id = c.id
-      WHERE p.category_id = ? AND p.is_active = TRUE
-      ORDER BY p.name
-    `;
-    db.query(query, [categoryId], (err, results) => {
-      if (err) {
-        callback(err, null);
-        return;
-      }
-      callback(null, results);
-    });
+    db.query('SELECT * FROM products WHERE category = ?', [categoryId], callback);
   }
 
   // Récupérer les produits par slug de catégorie
@@ -201,75 +120,26 @@ class Product {
   }
 
   // Créer un nouveau produit
-  static create(productData, callback) {
-    const query = `
-      INSERT INTO products (
-        name, description, price, sale_price, stock_quantity, 
-        sku, category_id, image_url, is_active, is_featured
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-    
-    db.query(query, [
-      productData.name,
-      productData.description || null,
-      productData.price,
-      productData.sale_price || null,
-      productData.stock_quantity || 0,
-      productData.sku || null,
-      productData.category_id || null,
-      productData.image_url || null,
-      productData.is_active !== undefined ? productData.is_active : true,
-      productData.is_featured || false
-    ], (err, result) => {
-      if (err) {
-        callback(err, null);
-        return;
-      }
-      callback(null, { id: result.insertId, ...productData });
-    });
+  static create(product, callback) {
+    db.query(
+      'INSERT INTO products (name, category, price, image, description, unit) VALUES (?, ?, ?, ?, ?, ?)',
+      [product.name, product.category, product.price, product.image, product.description, product.unit],
+      callback
+    );
   }
 
   // Mettre à jour un produit
-  static update(id, productData, callback) {
-    const query = `
-      UPDATE products SET 
-        name = ?, description = ?, price = ?, sale_price = ?, 
-        stock_quantity = ?, sku = ?, category_id = ?, image_url = ?, 
-        is_active = ?, is_featured = ?, updated_at = CURRENT_TIMESTAMP 
-      WHERE id = ?
-    `;
-    
-    db.query(query, [
-      productData.name,
-      productData.description || null,
-      productData.price,
-      productData.sale_price || null,
-      productData.stock_quantity || 0,
-      productData.sku || null,
-      productData.category_id || null,
-      productData.image_url || null,
-      productData.is_active !== undefined ? productData.is_active : true,
-      productData.is_featured || false,
-      id
-    ], (err, result) => {
-      if (err) {
-        callback(err, null);
-        return;
-      }
-      callback(null, { id, ...productData });
-    });
+  static update(id, product, callback) {
+    db.query(
+      'UPDATE products SET name = ?, category = ?, price = ?, image = ?, description = ?, unit = ? WHERE id = ?',
+      [product.name, product.category, product.price, product.image, product.description, product.unit, id],
+      callback
+    );
   }
 
   // Supprimer un produit (soft delete)
   static delete(id, callback) {
-    const query = 'UPDATE products SET is_active = FALSE, updated_at = CURRENT_TIMESTAMP WHERE id = ?';
-    db.query(query, [id], (err, result) => {
-      if (err) {
-        callback(err, null);
-        return;
-      }
-      callback(null, result);
-    });
+    db.query('DELETE FROM products WHERE id = ?', [id], callback);
   }
 
   // Supprimer définitivement un produit
@@ -294,6 +164,10 @@ class Product {
       }
       callback(null, result);
     });
+  }
+
+  static deleteByCategory(categoryId, callback) {
+    db.query('DELETE FROM products WHERE category = ?', [categoryId], callback);
   }
 }
 

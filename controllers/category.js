@@ -1,4 +1,5 @@
 const Category = require('../models/Category');
+const Product = require('../models/Product');
 
 // Récupérer toutes les catégories
 const getAllCategories = async (req, res) => {
@@ -164,31 +165,35 @@ const updateCategory = async (req, res) => {
   }
 };
 
-// Supprimer une catégorie
+// Supprimer une catégorie (et tous les produits liés)
 const deleteCategory = async (req, res) => {
   try {
     const categoryId = req.params.id;
     
-    Category.delete(categoryId, (err, result) => {
+    // Supprimer d'abord les produits liés
+    Product.deleteByCategory(categoryId, (err) => {
       if (err) {
-        console.error('Erreur lors de la suppression de la catégorie:', err);
         return res.status(500).json({
           success: false,
-          message: 'Erreur lors de la suppression de la catégorie',
+          message: 'Erreur lors de la suppression des produits liés',
           error: err.message
         });
       }
       
-      if (result.affectedRows === 0) {
-        return res.status(404).json({
-          success: false,
-          message: 'Catégorie non trouvée'
+      // Puis supprimer la catégorie
+      Category.delete(categoryId, (err) => {
+        if (err) {
+          return res.status(500).json({
+            success: false,
+            message: 'Erreur lors de la suppression de la catégorie',
+            error: err.message
+          });
+        }
+        
+        res.json({
+          success: true,
+          message: 'Catégorie et produits liés supprimés'
         });
-      }
-      
-      res.json({
-        success: true,
-        message: 'Catégorie supprimée avec succès'
       });
     });
   } catch (error) {
